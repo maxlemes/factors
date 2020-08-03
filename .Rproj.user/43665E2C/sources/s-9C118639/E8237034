@@ -1,0 +1,24 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1596408114040.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1984750196",
+    "id" : "E8237034",
+    "lastKnownWriteTime" : 1596408102,
+    "last_content_update" : 1596408102,
+    "path" : "~/Dropbox/R-Studio/pacotes/Factors/man/add_units.Rd",
+    "project_path" : "man/add_units.Rd",
+    "properties" : {
+    },
+    "read_only" : true,
+    "read_only_alternatives" : [
+        "R/add_units.R"
+    ],
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_doc"
+}
