@@ -24,7 +24,7 @@ yahoo
 B3 e CVM
 }
 \usage{
-Não se Aplica
+ibr4
 }
 \description{
 Os dados foram gerados considerando todas empresas do índice IBrA
