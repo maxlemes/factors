@@ -1,0 +1,203 @@
+---
+title: "Como criar e trabalhar com pacotes no R"
+author: "Max Lemes^[IME-UFG]"
+date: "`r format(Sys.Date(), '%d/%B/%Y')`"
+output: html_document
+---
+
+## Como criar um pacote
+Nossa fonte foi principalmente o site <https://curso-r.github.io/zen-do-r/data-data-raw.html>.
+
+O primeiro passo para organizar um bom ambiente de trabalho para análises de dados é criar um diretório onde todos os seus programas *R*. Crie uma pasta em seu computador e avise o *RStudio* onde ela se encontra, para isto vá em *Tools > Global Options > General > R Sessions*. 
+
+Desta forma, toda vez que você iniciar um novo projeto no R, ele por padrão usará essa nova pasta como ambiente padrão! O segundo passo no processo de organização dos seus projetos é criar uma pasta para cada projeto. Mas esta não deve ser uma pasta comum, ela deve ser um projeto.
+
+O código listado abaixo demonstra como criar um projeto no RStudio. Basta apenas um comando e ele já fará tudo que for necessário para preparar o seu ambiente de desenvolvimento.
+
+```{r collapse=TRUE}
+usethis::create_project("~/ProjetosR/NOME")
+```
+
+Este comando criará o projeto `NOME.Rproj` e a pasta `R/`.
+
+
+## Git e GitHub
+
+Em termos leigos, o Git permite gerenciar versões de arquivos texto (outros tipos também são suportados, mas o foco principal é em arquivos de código). O Git também pode se conectar a um serviço de hospedagem e armazenar todas as versões de um código fora do seu computador; o mais utilizado atualmente se chama GitHub.
+
+Para entender como esses projetos podem ser utilizados em conjunto com controle de versão você deve criar uma conta no GitHub e instalar o programa `git` no seu computador. 
+
+Para permitir que os comandos do R acessem a sua conta do GitHub, é essencial criar um Personal Access Token, PAT (uma sequência com uns 40 letras e números). O primeiro passo é através do comando abaixo:
+
+```{r collapse=TRUE}
+usethis::browse_github_token()
+```
+
+Após gerar o PAT execute a função
+
+```{r collapse=TRUE}
+usethis::edit_r_environ()
+```
+
+e crie uma nova linha na forma 
+
+```{r eval=FALSE, collapse=TRUE, include=FALSE}
+GITHUB_PAT={SEU_TOKEN}
+```
+
+Agora, ao criar um novo projeto, é possível associar imediatamente a ele um repositório no GitHub. O comando para criar projetos não muda, mas torna-se possível usar dois outros comando para associar aquela pasta com o sistema de controle de versões. 
+
+Execute na sequência: 
+
+```{r eval=FALSE, collapse=TRUE}
+usethis::create_project("~/ProjetosR/NOME")
+usethis::use_git()
+usethis::use_github()
+```
+
+## Criando um Pacote
+
+```{r eval=FALSE, collapse=TRUE}
+usethis::create_package("~/ProjetosR/NOME")
+usethis::use_git()
+usethis::use_github()
+```
+
+A função executada acima é exatamente análoga à função de criação de projetos. A principal diferença é que ela cria um arquivo `DESCRIPTION` e assume que o nome do pacote é igual ao nome da pasta onde o mesmo está sendo criado (neste caso, “demo”). Alguns outros arquivos também são criados (como `.Rbuildignore` e `NAMESPACE`), mas eles não vêm ao caso. De resto, o pacote é idêntico a um projeto e pode ser sincronizado com o Git exatamente da mesma maneira.
+
+O primeiro passo para começar a usar um pacote é atribuir a ele uma licença (caso um dia você resolva compartilhá-lo com o mundo) e preencher a descrição. Abaixo encontra-se uma função simples que adiciona uma licença MIT ao pacote.
+
+```{r eval=FALSE, collapse=TRUE}
+usethis::use_agpl3_license()
+```
+
+O arquivo de descrição, no entanto, é um pouco mais complexo porque ele tem alguns campos que precisam ser preenchidos manualmente. Quando o pacote for criado, eles já estarão populados com instruções para facilitar a vida do programador. Abaixo está um exemplo de como DESCRIPTION deve ficar depois de completo:
+
+```{r eval=FALSE, collapse=TRUE}
+Package: Factors
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Max",
+           family = "Lemes",
+           role = c("aut", "cre"),
+           email = "max@gmail.com",
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: Este Pacote será usado para análise de funções através de Fatores.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Depends: 
+    R (>= 2.10)
+```
+
+## Documentação
+
+Para poder programar pacotes com mais facilidade, é necessário instalar o `devtools`. Assim como o tidyverse, este é um conjunto de pacotes (que inclui o usethis por sinal) que auxiliam no processo de criar e testar um pacote de R.
+
+```{r eval=FALSE, collapse=TRUE}
+install.packages("devtools")
+```
+
+A partir de agora você pode, por exemplo, criar documentações para as funções do seu pacote. Quando outras pessoas o instalarem, elas poderão consultar esses manuais da mesma forma que fazem com qualquer outra função: `?funcao()`.
+
+Você deverá documentar cada função criada no pacote.
+
+A documentação mais simples (e obrigatória) envolve dar um título para a função e descrever o que cada parâmetro significa. Para documentar uma função qualquer, basta adicionar comentários em cima dela com #' assim como no exemplo abaixo:
+
+```{r eval=FALSE, collapse=TRUE}
+#' Função demonstrativa que soma e imprime
+#'
+#' @param x Um número ou vetor numérico
+#' @param y Um número ou vetor numérico
+#' @param ... Outros argumentos passados para [print()]
+#'
+#' @export
+funcao_demo <- function(x, y, ...) {
+  z <- x + y
+  print(z, ...)
+  return(z)
+}
+```
+
+Para gerar a documentação do pacote (cada função da pasta `R\` será documentada), basta chamar uma outra função do `devtools`: 
+
+```{r eval=FALSE, collapse=TRUE}
+devtools::document()
+```
+
+## Guardar e tratar dados
+Nos pacotes do **R** geralmente os dados brutos são armazenados no diretório `data-raw` e os dados tratados no diretório `data`.
+
+O primeiro passo é criar o diretório `data-raw`, para isto faremos 
+
+```{r collapse=TRUE}
+usethis::use_data_raw()
+```
+
+Note que foi criado o arquivo `DATASET.R` no diretório `data-raw`, este arquivo é onde você deverá digitar o script que irá tratar os dados. Além disso, colocaremos no diretório `data-raw` nossa base de dados brutos. Também é possível utilizar o comando `usethis::use_data_raw("NOME_DESEJADO")` para usar outro nome no lugar de `DATASET.R`.
+
+
+## DATASET.R
+
+Aqui é criado o script com o tratamento dos dados, exemplo
+
+```{r eval=FALSE}
+## code to prepare `ibr4` dataset goes here
+library(magrittr)
+
+ibra <- "data-raw/ibra.csv" %>%
+  readr::read_csv2() %>%
+  dplyr::rename(
+    ticker= `Código `
+  ) %>%
+  dplyr::select(
+    ticker
+  ) %>%
+  .[1:152, ] %>%
+  dplyr::mutate(
+    tick = stringr::str_sub(ticker,1,4)
+  )
+
+usethis::use_data(ibr4, overwrite = TRUE)
+
+```
+
+Os dados podem ser documentados da mesma forma que as funções basta para isto criar um arquivo `ibra.R` na pasta `R/` e escrever a documetação.
+
+
+## Checagem Final
+
+Conforme o número de funções no pacote for crescendo, basta iterar nesse ciclo descrito até aqui. Além disso, é importante lembrar (como destacado na sessão anterior) que qualquer função utilizada de outro pacote deve ser invocada na forma `pacote::funcao()`; neste momento, o pacote em questão se tornará uma dependência do seu pacote e deve ser declarado como tal com `usethis::use_package("pacote")` (mais sobre isso a seguir).
+
+Para garantir que o R não encontrará nenhum problema no seu pacote, basta executar a função de verificação 
+
+```{r eval=FALSE}
+devtools::check()
+```
+Se nenhum defeito for encontrado, basta compartilhar o pacote com os seus colegas e instalá-lo com `devtools::install_local()`.
+
+## Imports
+
+Como dito anteriormente, um passo importante na criação de um pacote é a declaração de suas dependências. Se você tiver seguido com cuidado a sugestão de já começar a escrever o pacote declarando todas as importações explicitamente (ou seja, com `pacote::funcao()`), isso não será um problema, pois o `devtools::check()` já será capaz de apontar extamanete quais dependências ainda precisam ser registradas.
+
+Suponha que um pacote tem exatamente duas dependências: o `dplyr` e o `kuber` (um pacote desenvolvido pela Curso-R e disponível somente via GitHub). Para passar no check() basta executar os dois comandos abaixo:
+
+```{r eval=FALSE}
+usethis::use_package("dplyr")
+usethis::use_dev_package("kuber")
+```
+
+O `dplyr`, por estar disponível no CRAN, não é um pacote considerado em fase de desenvolvimento, então basta usar `usethis::use_package()`. Já o kuber só está disponível no GitHub e instalável via `remotes::install_github("curso-r/kuber")`, então precisamos neste caso utilizar `usethis::use_dev_package()`. Os comandos acima criam uma nova seção no arquivo `DESCRIPTION`:
+
+```{r eval=FALSE}
+Imports: 
+    dplyr,
+    kuber (>= 0.3.1.9000)
+Remotes:  
+    curso-r/kuber
+```
+
+Note que o `kuber` já é importado com um link remoto para o seu repositório no GitHub e um marcador da versão atualmente instalada na sua máquina. 
